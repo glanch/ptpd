@@ -48,15 +48,16 @@
 
       # A NixOS module, if applicable (e.g. if the package provides a system service).
       nixosModules.ptpd =
+
+        { config, lib, pkgs, ... }:
         let
           cfg = config.services.ptpd;
         in
-        { config, lib, pkgs, ... }:
         {
           nixpkgs.overlays = [ self.overlay ];
           options.services.ptpd.enable = lib.mkEnableOption "ptpd";
 
-          options.services.ptpd = { 
+          options.services.ptpd = {
             interface = lib.mkOption {
               type = lib.types.str;
               default = "eth0";
@@ -68,14 +69,14 @@
               default = true;
               example = true;
             };
-            
+
           };
 
           environment.systemPackages = [ pkgs.ptpd ];
           config = lib.mkIf cfg.enable
             {
-              services.timesyncd.enable = false; 
-              
+              services.timesyncd.enable = false;
+
               systemd.services = {
                 ptpd = {
                   enable = true;
