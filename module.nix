@@ -32,13 +32,6 @@ in
           description = "Precision Time Protocol Daemon";
           after = [ "syslog.target" "ntpdate.service" "sntp.service" "ntp.service" "chronyd.service" "network.target" ];
           serviceConfig = {
-            Type = "forking";
-            User = "root";
-          };
-        };
-
-
-        serviceConfig = {
           User = "root";
           Group = "root";
           WorkingDirectory = "/root";
@@ -46,6 +39,10 @@ in
           Restart = "always";
           RestartSec = "5";
         };
+        };
+
+
+        
       };
     };
   #systemd.services = { ... };
