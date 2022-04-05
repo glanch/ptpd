@@ -20,7 +20,6 @@
       nixpkgsFor = forAllSystems (system: import nixpkgs { inherit system; overlays = [ self.overlay ]; });
 
     in
-
     {
 
       # A Nixpkgs overlay.
@@ -30,8 +29,8 @@
           name = "ptpd-${version}";
 
           src = ./.;
-
-          nativeBuildInputs = [ autoreconfHook libpcap ];
+          buildInputs = [ libpcap libbpf ];
+          nativeBuildInputs = [ autoreconfHook libpcap libbpf ];
         };
 
       };
@@ -45,16 +44,60 @@
       # The default package for 'nix build'. This makes sense if the
       # flake provides only one package or there is a clear "main"
       # package.
-      defaultPackage = forAllSystems (system: self.packages.${system}.hello);
+      defaultPackage = forAllSystems (system: self.packages.${system}.ptpd);
 
       # A NixOS module, if applicable (e.g. if the package provides a system service).
-      nixosModules.hello =
-        { pkgs, ... }:
+      nixosModules.ptpd =
+        let
+          cfg = config.services.ptpd;
+        in
+        { config, lib, pkgs, ... }:
         {
           nixpkgs.overlays = [ self.overlay ];
+          options.services.ptpd.enable = lib.mkEnableOption "ptpd";
 
-          environment.systemPackages = [ pkgs.hello ];
+          options.services.ptpd = { 
+            interface = lib.mkOption {
+              type = lib.types.str;
+              default = "eth0";
+              example = "ens19s";
+            };
 
+            slaveOnly = lib.mkOption {
+              type = lib.types.bool;
+              default = true;
+              example = true;
+            };
+            
+          };
+
+          environment.systemPackages = [ pkgs.ptpd ];
+          config = lib.mkIf cfg.enable
+            {
+              services.timesyncd.enable = false; 
+              
+              systemd.services = {
+                ptpd = {
+                  enable = true;
+                  description = "Precision Time Protocol Daemon";
+                  after = [ "syslog.target" "ntpdate.service" "sntp.service" "ntp.service" "chronyd.service" "network.target" ];
+                  serviceConfig = {
+                    Type = "forking";
+                    User = "root";
+                  };
+                };
+
+
+                serviceConfig = {
+                  User = "root";
+                  Group = "root";
+                  WorkingDirectory = "/root";
+                  ExecStart = "${pkgs.ptpd}/bin/ptpd --interface ${cfg.interface} ${if cfg.slaveOnly then "-s" else ""} -V -C";
+                  Restart = "always";
+                  RestartSec = "5";
+                };
+              };
+            };
           #systemd.services = { ... };
         };
 
@@ -93,7 +136,7 @@
       #         makeTest {
       #           nodes = {
       #             client = { ... }: {
-      #               imports = [ self.nixosModules.hello ];
+      #               imports = [ self.nixosModules.ptpd ];
       #             };
       #           };
 
