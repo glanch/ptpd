@@ -1,5 +1,5 @@
 {
-  description = "An over-engineered Hello World in C";
+  description = "Precision Time Protocol Daemon";
 
   # Nixpkgs / NixOS version to use.
   inputs.nixpkgs.url = "nixpkgs/nixos-21.05";
@@ -25,7 +25,7 @@
       # A Nixpkgs overlay.
       overlay = final: prev: {
 
-        hello = with final; stdenv.mkDerivation rec {
+        ptpd = with final; stdenv.mkDerivation rec {
           name = "ptpd-${version}";
 
           src = ./.;
@@ -38,7 +38,7 @@
       # Provide some binary packages for selected system types.
       packages = forAllSystems (system:
         {
-          inherit (nixpkgsFor.${system}) hello;
+          inherit (nixpkgsFor.${system}) ptpd;
         });
 
       # The default package for 'nix build'. This makes sense if the
