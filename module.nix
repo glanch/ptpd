@@ -37,7 +37,7 @@ in
             User = "root";
             Group = "root";
             WorkingDirectory = "/root";
-            ExecStart = "${pkgs.ptpd}/bin/ptpd --interface ${cfg.interface} ${if cfg.slaveOnly then "-s" else ""} -V -C";
+            ExecStart = "${pkgs.ptpd}/bin/ptpd2 --interface ${cfg.interface} ${if cfg.slaveOnly then "-s" else ""} -V -C";
             Restart = "always";
             RestartSec = "5";
           };
