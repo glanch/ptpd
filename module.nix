@@ -18,6 +18,11 @@ in
       example = true;
     };
 
+    openFirewall = lib.mkOption {
+      type = lib.types.bool;
+      default = true;
+      example = true;
+    };
   };
 
 
@@ -25,6 +30,7 @@ in
     {
       environment.systemPackages = [ pkgs.ptpd ];
       services.timesyncd.enable = false;
+      networking.firewall.allowedUDPPorts = if cfg.openFirewall then [ 319 320 ] else [];
 
       systemd.services = {
         ptpd = {
@@ -47,5 +53,4 @@ in
 
       };
     };
-  #systemd.services = { ... };
 }

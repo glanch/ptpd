@@ -51,54 +51,5 @@
         nixpkgs.overlays = [ self.overlay ];
       };
 
-      # Tests run by 'nix flake check' and by Hydra.
-      # checks = forAllSystems
-      #   (system:
-      #     with nixpkgsFor.${system};
-
-      #     {
-      #       inherit (self.packages.${system}) hello;
-
-      #       # Additional tests, if applicable.
-      #       test = stdenv.mkDerivation {
-      #         name = "hello-test-${version}";
-
-      #         buildInputs = [ hello ];
-
-      #         unpackPhase = "true";
-
-      #         buildPhase = ''
-      #           echo 'running some integration tests'
-      #           [[ $(hello) = 'Hello Nixers!' ]]
-      #         '';
-
-      #         installPhase = "mkdir -p $out";
-      #       };
-      #     }
-
-      #     // lib.optionalAttrs stdenv.isLinux {
-      #       # A VM test of the NixOS module.
-      #       vmTest =
-      #         with import (nixpkgs + "/nixos/lib/testing-python.nix") {
-      #           inherit system;
-      #         };
-
-      #         makeTest {
-      #           nodes = {
-      #             client = { ... }: {
-      #               imports = [ self.nixosModules.ptpd ];
-      #             };
-      #           };
-
-      #           testScript =
-      #             ''
-      #               start_all()
-      #               client.wait_for_unit("multi-user.target")
-      #               client.succeed("hello")
-      #             '';
-      #         };
-      #     }
-      #   );
-
     };
 }
