@@ -31,18 +31,20 @@ in
           enable = true;
           description = "Precision Time Protocol Daemon";
           after = [ "syslog.target" "ntpdate.service" "sntp.service" "ntp.service" "chronyd.service" "network.target" ];
+          wantedBy = [ "multi-user.target" ];
+
           serviceConfig = {
-          User = "root";
-          Group = "root";
-          WorkingDirectory = "/root";
-          ExecStart = "${pkgs.ptpd}/bin/ptpd --interface ${cfg.interface} ${if cfg.slaveOnly then "-s" else ""} -V -C";
-          Restart = "always";
-          RestartSec = "5";
-        };
+            User = "root";
+            Group = "root";
+            WorkingDirectory = "/root";
+            ExecStart = "${pkgs.ptpd}/bin/ptpd --interface ${cfg.interface} ${if cfg.slaveOnly then "-s" else ""} -V -C";
+            Restart = "always";
+            RestartSec = "5";
+          };
         };
 
 
-        
+
       };
     };
   #systemd.services = { ... };
